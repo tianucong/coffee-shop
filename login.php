@@ -34,7 +34,7 @@ if (isset($_POST['login'])) {
 $error="Username atau password salah";
 }
 $title="Masuk";
-include 'header.php';
+include 'navbar.php';
 ?>
 <div class="max-w-sm mx-auto mt-16 px-4">
     <h1 class="text-2xl font-semibold mb-6">Masuk</h1>

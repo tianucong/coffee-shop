@@ -1,5 +1,5 @@
 <?php
-// FITUR 6: owner melihat SEMUA order + chart penjualan + unduh Excel
+
 require_once 'config.php';
 require_once 'auth.php';
 require_role(['owner']);

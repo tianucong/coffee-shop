@@ -1,7 +1,9 @@
 <?php
-include 'config.php';
-include 'auth.php';
+require_once 'config.php';
+require_once 'auth.php';
 require_role(['owner']);
+
+$msg="";
 
 function h($s){
     return htmlspecialchars($s??'',ENT_QUOTES,'UTF-8');
@@ -10,8 +12,6 @@ function h($s){
 function rupiah($n) { 
     return 'Rp ' . number_format($n, 0, ',', '.'); 
 }
-
-$msg="";
 
 if(isset($_POST['add'])){
     $image_url=trim($_POST['image_url']);

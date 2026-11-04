@@ -1,13 +1,21 @@
 <?php
 
-include 'config.php';
-include 'auth.php';
+require_once 'config.php';
+require_once 'auth.php';
 require_role(['owner']);
 
 header("Content-Type: application/vnd.ms-excel");
 header("Content-Disposition: attachment; filename=Laporan_Order_Kopipiro.xls");
 header("Pragma: no-cache");
 header("Expires: 0");
+
+function h($s){
+    return htmlspecialchars($s??'',ENT_QUOTES,'UTF-8');
+}
+
+function rupiah($n) { 
+    return 'Rp ' . number_format($n, 0, ',', '.'); 
+}
 
 $result=mysqli_query($conn,"
   SELECT o.*,c.name AS cashier_name

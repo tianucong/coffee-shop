@@ -1,7 +1,7 @@
 <?php
 
-include 'config.php';
-include 'auth.php';
+require_once 'config.php';
+require_once 'auth.php';
 
 header('Content-Type:application/json');
 
@@ -10,7 +10,7 @@ $items=$data['items']??[];
 $name=is_logged()?$_SESSION['name']:trim($data['customer_name']??'');
 
 if(!$items||$name===''){
-    echo_json_encode(['ok'=>false,'msg'=>'Data pesanan tidak lengkap']);
+    echo json_encode(['ok'=>false,'msg'=>'Data pesanan tidak lengkap']);
     exit;
 }
 
@@ -51,9 +51,9 @@ try{
         mysqli_stmt_execute($s);
     }
     mysqli_commit($conn);
-    echo_json_encode(['ok'=>true,'order_id'=>$orderId]);
+    echo json_encode(['ok'=>true,'order_id'=>$orderId]);
 }
 catch(Exception $e){
     mysqli_rollback($conn);
-    echo_json_encode(['ok'=>false,'msg'=>'Gagal menyimpan pesanan']);
+    echo json_encode(['ok'=>false,'msg'=>'Gagal menyimpan pesanan']);
 }

@@ -1,14 +1,15 @@
 <?php
 
-include 'auth.php';
+require_once 'auth.php';
 
 function h($s){
-    return htmlspecialchars($s ?? '',ENT_QUOTES,'UTF-8');
+    return htmlspecialchars($s??'',ENT_QUOTES,'UTF-8');
 }
 
-function rupiah ($n){
-    return 'Rp '.number_formats($n, 0, ',', '.');
+function rupiah($n) { 
+    return 'Rp ' . number_format($n, 0, ',', '.'); 
 }
+
 
 $role=current_role();
 ?>
@@ -25,7 +26,7 @@ $role=current_role();
     
         function updateCartCount(){
             const cart=JSON.parse(localStorage.getItem('cart')||'{}');
-            const total=Object.values(cart).reduce((a+b)=>a+b,0);
+            const total=Object.values(cart).reduce((a,b)=>a+b,0);
             const el=document.getElementById('cartCount');
             if(el){
                 el.textContent=total;

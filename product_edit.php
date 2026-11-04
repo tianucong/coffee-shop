@@ -1,7 +1,8 @@
 <?php
-include 'config.php';
-include 'auth.php';
+require_once 'config.php';
+require_once 'auth.php';
 require_role(['owner']);
+
 
 function h($s){
     return htmlspecialchars($s??'',ENT_QUOTES,'UTF-8');
@@ -19,7 +20,7 @@ $p = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 if (!$p) die("Produk tidak ditemukan.");
 
 if(isset($_POST['update'])){
-    $image = upload_image($_FILES['image']) ?? $p['image'];
+    $image = trim($_POST['image_url']);
     $stmt = mysqli_prepare($conn, "UPDATE products SET name=?, description=?, price=?, image=?, category=?, rating=? WHERE id=?");
     mysqli_stmt_bind_param($stmt, "ssissdi", $_POST['name'], $_POST['description'], $_POST['price'], $image, $_POST['category'], $_POST['rating'], $id);
     mysqli_stmt_execute($stmt);
@@ -30,7 +31,7 @@ if(isset($_POST['update'])){
 $title="Ubah Produk";
 include 'navbar.php';
 ?>
-<form method="POST" enctype="multipart/form-data" class="max-w-md mx-auto mt-10 px-4 space-y-3">
+<form method="POST" class="max-w-md mx-auto mt-10 px-4 space-y-3">
   <h1 class="text-xl font-semibold">Ubah produk</h1>
   <input name="name" value="<?= h($p['name']) ?>" required class="w-full border border-stone-300 rounded px-3 py-2">
   <textarea name="description" rows="3" class="w-full border border-stone-300 rounded px-3 py-2"><?= h($p['description']) ?></textarea>
@@ -41,8 +42,8 @@ include 'navbar.php';
     <?php endforeach; ?>
   </select>
 <input name="rating" type="number" step="0.1" min="0" max="5" value="<?= $p['rating'] ?>" class="w-full border border-stone-300 rounded px-3 py-2">
-  <?php if ($p['image']): ?><img src="uploads/<?= h($p['image']) ?>" class="w-24 h-24 object-cover"><?php endif; ?>
-  <input name="image" type="file" accept="image/*" class="text-sm">
+  <?php if ($p['image']): ?><img src="<?= h($p['image']) ?>" class="w-24 h-24 object-cover"><?php endif; ?>
+  <input name="image_url" type="url" value="<?= h($p['image']) ?>" placeholder="Link URL gambar (opsional)" class="w-full border border-stone-300 rounded px-3 py-2">
   <div class="flex gap-2 justify-end">
     <a href="products.php" class="px-4 py-2 border border-stone-300 rounded">Batal</a>
     <button name="update" class="px-4 py-2 bg-coffee text-white rounded">Simpan perubahan</button>

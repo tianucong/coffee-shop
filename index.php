@@ -1,15 +1,14 @@
 <?php
 
+require_once 'config.php';
+require_once 'auth.php';
 
-include 'config.php';
-include 'auth.php';
-
-$result   = mysqli_query($conn, "SELECT id, name, description, price, image, category, rating FROM products ORDER BY id DESC");
+$result = mysqli_query($conn, "SELECT id, name, description, price, image, category, rating FROM products ORDER BY id DESC");
 $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
 $discount = get_discount_percent();
 
 $title="Menu";
-include 'navbar.php';
+require_once 'navbar.php';
 ?>
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -48,7 +47,7 @@ include 'navbar.php';
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
     <div v-for="p in filtered" :key="p.id" class="group">
       <div class="bg-stone-100 aspect-square flex items-center justify-center overflow-hidden">
-        <img v-if="p.image" :src="'uploads/' + p.image" :alt="p.name" class="w-full h-full object-cover">
+        <img v-if="p.image" :src="p.image" :alt="p.name" class="w-full h-full object-cover">
         <span v-else class="text-5xl">☕</span>
       </div>
       <div class="mt-3 text-sm">
@@ -74,7 +73,6 @@ Vue.createApp({
       products:<?= json_encode($products)?>,
       discount:<?=(int)$discount?>,
       category:'all',
-      search:'',
       search:'',
       toast:'',
       categories:[

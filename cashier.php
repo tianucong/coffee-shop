@@ -1,15 +1,14 @@
 <?php
 
-include 'config.php';
-include 'auth.php';
-
+require_once 'config.php';
+require_once 'auth.php';
 require_role (['cashier']);
 
 function h($s){
-    return htmlspecialchar($s ?? '',ENT_QUOTES,'UTF-8');
+    return htmlspecialchars($s??'',ENT_QUOTES,'UTF-8');
 }
 
-function rupiah($n){
+function rupiah($n) { 
     return 'Rp ' . number_format($n, 0, ',', '.'); 
 }
 
@@ -30,7 +29,7 @@ include "navbar.php";
 function order_card($o,$button){?>
     <div class="border border-stone-200 rounded p-4 flex justify-between gap-4 items-center">
     <div class="text-sm">
-        <div class="font-medium">#<?=$o['id']?> . <?=h($o['customer_name'])?>.<?=rupiah=h($o['total'])?></div>
+        <div class="font-medium">#<?=$o['id']?> . <?=h($o['customer_name'])?>.<?=rupiah($o['total'])?></div>
         <div class="text-stone-500"><?= h($o['items']) ?></div>
         <div class="text-xs text-stone-400"><?= date('d/m/Y H:i', strtotime($o['created_at'])) ?> · <?= h($o['status']) ?></div>
 </div>
@@ -43,7 +42,7 @@ function order_card($o,$button){?>
 <div class="max-w-3xl mx-auto px-4 py-8 space-y-8">
 
 <section>
-    <h2 class="font-semibold mb-3">Order baru (<?=count($newOrder)?>)</h2>
+    <h2 class="font-semibold mb-3">Order baru (<?=count($newOrders)?>)</h2>
     <div class="space-y-3">
     <?php
     foreach($newOrders as $o):

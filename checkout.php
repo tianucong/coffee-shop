@@ -1,20 +1,21 @@
 <?php
-include 'config.php'
-include 'auth.php';
 
-if(in_array(current_role(),['owner','cashier'])){
-    header("Location: index.php");
-    exit;
-}
+require_once 'config.php';
+require_once 'auth.php';
 
-$result=mysqli_query($conn,"SELECT * FROM products");
-$products=mysqli_fetch_all($result,MYSQLI_ASSOC);
-$discount=get_discount_percent();
 
-$title="Checkout";
+if (in_array(current_role(), ['owner', 'cashier'])) { 
+    header("Location: index.php"); 
+    exit; 
+    }
+
+$result= mysqli_query($conn, "SELECT id, name, price, image FROM products");
+$products = mysqli_fetch_all($result, MYSQLI_ASSOC);
+$discount = get_discount_percent();
+
+$title = "Checkout";
 include 'navbar.php';
 ?>
-
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
 <div id="app" class="max-w-3xl mx-auto px-4 py-10">
@@ -25,9 +26,10 @@ include 'navbar.php';
   </div>
 
   <div v-else>
+ 
     <div v-for="i in items" :key="i.id" class="flex items-center gap-4 py-4 border-b border-stone-200">
       <div class="w-16 h-16 bg-stone-100 flex items-center justify-center overflow-hidden shrink-0">
-        <img v-if="i.image" :src="'uploads/' + i.image" class="w-full h-full object-cover">
+        <img v-if="i.image" :src="i.image" class="w-full h-full object-cover">
         <span v-else>☕</span>
       </div>
       <div class="flex-1">
@@ -63,70 +65,67 @@ include 'navbar.php';
 </div>
 
 <script>
-    Vue.createApp{{
-        data(){
-            return{
-                products:<?= json-encode($products, JSON_HEX_TAG) ?>,
-                discount:<?=(int)$discount?>,
-                loggedIn:<?= isset($_SESSION['user_id'])?'true':'false'?>,
-                customerName:<?=json_encode(is_logged()?$_SESSION['name']:'',JSON_HEX_TAG)?>,
-                cart:JSON.parse(localStorage.getItem('cart')||'{}'),
-                error:'',loading: false
-            }
-        },
-        computed:{
-            items(){
-                return this.products.filter(p=>this.cart[p.id]).map(p=>({...p,qty:this.cart[p.id]}));
-            },
-            subtotal(){
-                return this.items.reduce((s, i) => s + i.price * i.qty, 0);
-            }
-            discountAmount(){
-                return Math.round(this.subtotal * this.discount / 100);
-            }
-            total(){
-                return this.subtotal - this.discountAmount;
-            }
-        },
-
-        methods:{
-            rupiah(n){
-                return 'Rp ' + Number(n).toLocaleString('id-ID');
-            }
-            change(id, delta){
-                 this.cart[id] = (this.cart[id] || 0) + delta;
-                 if (this.cart[id] <= 0) {
-                    delete this.cart[id];
-                }
-                 localStorage.setItem('cart', JSON.stringify(this.cart));
-                 updateCartCount();
-            },
-            async submit (){
-                this.error='';
-                if(!this,customerName.trim()){
-                    this.error='Nama pemesan harus diisi';
-                    return;
-                }
-                this.loading=true;
-                const res=await fetch('order_process.php',{
-                    method:'POST',
-                    headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({
-                        customer_name:this.customerName,
-                        items:this.items.map(i=>({id:i.id,qty:i.qty}))
-                    })
-                });
-                const data = await res.json();
-                this.loading = false;
-                if (data.ok) {
-                    localStorage.removeItem('cart');
-                    window.location = 'order_success.php?id=' + data.order_id;
-                } else {
-                    this.error = data.msg;
-                }
-            }
-        }
-    }}.mount('#app');
-    </script>
-    </body>
-    </html>
+Vue.createApp({
+  data() {
+    return {
+      products: <?= json_encode($products, JSON_HEX_TAG) ?>,
+      discount: <?= (int)$discount ?>,
+      loggedIn: <?= is_logged() ? 'true' : 'false' ?>,
+      customerName: <?= json_encode(is_logged() ? $_SESSION['name'] : '', JSON_HEX_TAG) ?>,
+      cart: JSON.parse(localStorage.getItem('cart') || '{}'),
+      error: '', loading: false
+    }
+  },
+  computed: {
+    items() {
+      return this.products
+        .filter(p => this.cart[p.id] > 0)
+        .map(p => ({ ...p, qty: this.cart[p.id] }));
+    },
+    subtotal(){ 
+        return this.items.reduce((s, i) => s + i.price * i.qty, 0); 
+    },
+    discountAmount() { 
+        return Math.round(this.subtotal * this.discount / 100); 
+    },
+    total(){ 
+        return this.subtotal - this.discountAmount; 
+    }
+  },
+  methods: {
+    rupiah(n){ 
+        return 'Rp ' + Number(n).toLocaleString('id-ID'); 
+    },
+    change(id, delta) {
+      this.cart[id] = (this.cart[id] || 0) + delta;
+      if (this.cart[id] <= 0) delete this.cart[id];
+      localStorage.setItem('cart', JSON.stringify(this.cart));
+      updateCartCount();
+    },
+    async submit() {
+      this.error = '';
+      if (!this.customerName.trim()) { this.error = 'Isi nama pemesan dulu.'; return; }
+      this.loading = true;
+      const res = await fetch('order_process.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_name: this.customerName,
+          items: this.items.map(i => ({ id: i.id, qty: i.qty }))
+        })
+      });
+      const data = await res.json();
+      this.loading = false;
+      if (data.ok) {
+        localStorage.removeItem('cart');
+        window.location = 'order_success.php?id=' + data.order_id;
+      } else {
+        this.error = data.msg;
+      }
+    }
+  }
+}).mount('#app');
+</script>
+<?php ?>
+</body>
+</html>
